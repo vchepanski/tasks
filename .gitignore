@@ -1,0 +1,21 @@
+# Ignorar logs e arquivos de cache do Laravel
+/storage/logs
+/storage/framework/cache
+/storage/framework/sessions
+/storage/framework/views
+
+# Ignorar arquivos SQLite (caso use)
+database/database.sqlite
+
+# Ignorar dependências do Composer e NPM
+/vendor
+/node_modules
+
+# Ignorar configurações do PHPStorm, VSCode e outras IDEs
+/.idea
+/.vscode
+/.phpstorm.meta.php
+/.phpunit.result.cache
+
+# Ignorar arquivos de configuração sensíveis
+.env*
