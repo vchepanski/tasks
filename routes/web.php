@@ -3,8 +3,10 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
+use App\Http\Controllers\TaskController;
+
+Route::middleware(['auth'])->group(function () {
+    Route::resource('tasks', TaskController::class);
 });
 
 Route::get('/dashboard', function () {
