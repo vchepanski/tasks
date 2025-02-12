@@ -3,25 +3,29 @@
 namespace App\Http\Controllers;
 
 use App\Models\Task;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class TaskController extends Controller
 {
-    /**
-     * Lista todas as tarefas.
-     */
-    public function index()
-    {
-        $tasks = Task::orderBy('due_date', 'asc')->get();
+
+    public function index(){
+        $user = auth()->user();
+
+        // Se for admin, pode ver todas as tarefas
+        if ($user->is_admin) {
+            $tasks = Task::orderBy('due_date', 'asc')->get();
+        } else {
+            $tasks = $user->tasks()->orderBy('due_date', 'asc')->get();
+        }
+
         return view('tasks.index', compact('tasks'));
     }
 
-    /**
-     * Mostra o formulário para criar uma nova tarefa.
-     */
     public function create()
     {
-        return view('tasks.create');
+        $users = User::where('id', '!=', auth()->id())->get();
+        return view('tasks.create', compact('users'));
     }
 
     /**
@@ -34,12 +38,28 @@ class TaskController extends Controller
             'description' => 'nullable|string',
             'status' => 'required|in:pendente,em andamento,concluída',
             'due_date' => 'nullable|date',
+            'users' => 'array',
+            'users.*' => 'exists:users,id',
         ]);
 
-        Task::create($request->all());
+        // Salvar a tarefa com o usuário criador
+        $task = Task::create([
+            'title' => $request->title,
+            'description' => $request->description,
+            'status' => $request->status,
+            'due_date' => $request->due_date,
+            'created_by' => auth()->id(), // Adicionando o ID do usuário logado
+        ]);
+
+        $task->users()->attach(auth()->id()); // Vincular o criador automaticamente
+
+        if ($request->has('users')) {
+            $task->users()->attach($request->users);
+        }
 
         return redirect()->route('tasks.index')->with('success', 'Tarefa criada com sucesso!');
     }
+
 
     /**
      * Exibe detalhes de uma tarefa específica.
@@ -54,24 +74,32 @@ class TaskController extends Controller
      */
     public function edit(Task $task)
     {
-        return view('tasks.edit', compact('task'));
+        $users = User::where('id', '!=', $task->created_by)->get();
+        return view('tasks.edit', compact('task', 'users'));
     }
+
+
 
     /**
      * Atualiza uma tarefa no banco de dados.
      */
-    public function update(Request $request, Task $task)
-    {
+    public function update(Request $request, Task $task){
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'status' => 'required|in:pendente,em andamento,concluída',
             'due_date' => 'nullable|date',
+            'users' => 'array',
+            'users.*' => 'exists:users,id',
         ]);
 
-        $task->update($request->all());
+        $task->update($request->only(['title', 'description', 'status', 'due_date']));
 
-        return redirect()->route('tasks.index')->with('success', 'Tarefa atualizada!');
+        if ($request->has('users')) {
+            $task->users()->sync($request->users);
+        }
+
+        return redirect()->route('tasks.index')->with('success', 'Tarefa atualizada com sucesso!');
     }
 
     /**

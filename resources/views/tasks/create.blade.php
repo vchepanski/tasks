@@ -32,6 +32,8 @@
             <input type="date" name="due_date" class="w-full p-2 border rounded">
         </div>
 
+        <x-user-selector :users="$users" />
+
         <button type="submit" class="px-4 py-2 text-white bg-green-500 rounded hover:bg-green-600">Salvar</button>
     </form>
 @endsection

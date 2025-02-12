@@ -33,11 +33,10 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
+    public function tasks(){
+        return $this->belongsToMany(Task::class, 'task_user');
+    }
+
     protected function casts(): array
     {
         return [

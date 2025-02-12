@@ -14,20 +14,21 @@
     @else
         <ul class="space-y-4">
             @foreach($tasks as $task)
-                <li class="flex items-center justify-between p-4 border rounded-lg bg-gray-50">
-                    <div>
-                        <strong class="text-lg">{{ $task->title }}</strong>
-                        <p class="text-sm text-gray-600">{{ $task->status }}</p>
-                    </div>
-                    <div>
-                        <a href="{{ route('tasks.edit', $task->id) }}" class="mr-2 text-blue-500 hover:underline">Editar</a>
-                        <form action="{{ route('tasks.destroy', $task->id) }}" method="POST" class="inline">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="text-red-500 hover:underline">Excluir</button>
-                        </form>
-                    </div>
-                </li>
+            <li class="flex items-center justify-between p-4 border rounded-lg bg-gray-50">
+                <div>
+                    <strong class="text-lg">{{ $task->title }}</strong>
+                    <p class="text-sm text-gray-600">{{ $task->status }}</p>
+                    <p class="text-xs text-gray-500">Criado por: {{ $task->creator->name }}</p>
+                </div>
+                <div>
+                    <a href="{{ route('tasks.edit', $task->id) }}" class="mr-2 text-blue-500 hover:underline">Editar</a>
+                    <form action="{{ route('tasks.destroy', $task->id) }}" method="POST" class="inline">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="text-red-500 hover:underline">Excluir</button>
+                    </form>
+                </div>
+            </li>
             @endforeach
         </ul>
     @endif
