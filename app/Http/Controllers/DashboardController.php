@@ -4,20 +4,24 @@ namespace App\Http\Controllers;
 
 use App\Models\Task;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
     public function index()
-{
-    $user = auth()->user();
+    {
+        $user = Auth::user();
 
-    $tasksQuery = $user->is_admin ? Task::query() : $user->tasks();
+        // Se for admin, pega todas as tarefas; caso contrário, apenas as vinculadas ao usuário
+        $tasksQuery = $user->is_admin ? Task::query() : $user->tasks();
 
-    return view('dashboard', [
-        'pendingTasks' => $tasksQuery->where('status', 'pendente')->count(),
-        'inProgressTasks' => $tasksQuery->where('status', 'em andamento')->count(),
-        'completedTasks' => $tasksQuery->where('status', 'concluída')->count(),
-    ]);
-}
+        // Clone o builder para cada contagem
+        $pendingTasks    = (clone $tasksQuery)->where('status', 'pendente')->count();
+        $inProgressTasks = (clone $tasksQuery)->where('status', 'em andamento')->count();
+        $completedTasks  = (clone $tasksQuery)->where('status', 'concluída')->count();
+
+        return view('dashboard', compact('pendingTasks', 'inProgressTasks', 'completedTasks'));
+    }
+
 
 }

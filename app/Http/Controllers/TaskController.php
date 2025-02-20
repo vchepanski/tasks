@@ -9,18 +9,19 @@ use Illuminate\Http\Request;
 class TaskController extends Controller
 {
 
-    public function index(){
+    public function index(Request $request)
+    {
         $user = auth()->user();
+        $query = $user->is_admin ? Task::query() : $user->tasks();
 
-        // Se for admin, pode ver todas as tarefas
-        if ($user->is_admin) {
-            $tasks = Task::orderBy('due_date', 'asc')->get();
-        } else {
-            $tasks = $user->tasks()->orderBy('due_date', 'asc')->get();
+        if ($request->has('status') && $request->status != 'todos') {
+            $query->where('status', $request->status);
         }
 
+        $tasks = $query->orderBy('due_date', 'asc')->get();
         return view('tasks.index', compact('tasks'));
     }
+
 
     public function create()
     {
@@ -34,32 +35,49 @@ class TaskController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'status' => 'required|in:pendente,em andamento,concluída',
-            'due_date' => 'nullable|date',
-            'users' => 'array',
-            'users.*' => 'exists:users,id',
+            'title'         => 'required|string|max:255',
+            'description'   => 'nullable|string',
+            'priority'      => 'required|in:baixa,media,alta',
+            'due_date'      => 'date|after_or_equal:today',
+            'status'        => 'required|in:pendente,em andamento,concluída',
+            'users'         => 'array',
+            'users.*'       => 'exists:users,id',
+            'attachments'   => 'nullable|array',
+            'attachments.*' => 'file|max:2048', // cada arquivo máximo 2MB
         ]);
 
-        // Salvar a tarefa com o usuário criador
+        // Cria a tarefa com os dados recebidos
         $task = Task::create([
-            'title' => $request->title,
+            'title'       => $request->title,
             'description' => $request->description,
-            'status' => $request->status,
-            'due_date' => $request->due_date,
-            'created_by' => auth()->id(), // Adicionando o ID do usuário logado
+            'priority'    => $request->priority,
+            'due_date'    => $request->due_date,
+            'status'      => $request->status,
+            'created_by'  => auth()->id(),
         ]);
 
-        $task->users()->attach(auth()->id()); // Vincular o criador automaticamente
+        // Vincula o criador automaticamente
+        $task->users()->attach(auth()->id());
 
+        // Vincula os demais usuários, se enviados
         if ($request->has('users')) {
             $task->users()->attach($request->users);
         }
 
+        // Processa os anexos, se houver (vários arquivos)
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                $path = $file->store('attachments', 'public');
+                \App\Models\Attachment::create([
+                    'task_id'       => $task->id,
+                    'user_id'       => auth()->id(),
+                    'file_path'     => $path,
+                    'original_name' => $file->getClientOriginalName(), // Nome original do arquivo
+                ]);
+            }
+        }
         return redirect()->route('tasks.index')->with('success', 'Tarefa criada com sucesso!');
     }
-
 
     /**
      * Exibe detalhes de uma tarefa específica.

@@ -24,6 +24,11 @@
                         <button type="submit" class="text-red-500 hover:underline">🗑️ Excluir</button>
                     </form>
                 </div>
+
+                <div class="mt-4">
+                    <!-- Botão para visualizar a tarefa -->
+                    <a href="{{ route('tasks.show', $task->id) }}" class="block text-blue-600 hover:underline">Visualizar Tarefa</a>
+                </div>
             </div>
         @endforeach
     </div>

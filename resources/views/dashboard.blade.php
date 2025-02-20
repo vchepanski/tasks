@@ -5,21 +5,29 @@
 
 @section('content')
     <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
-        <!-- Estatísticas de Tarefas -->
-        <div class="p-6 transition bg-white border-l-8 border-blue-600 rounded-lg shadow-md hover:scale-105">
-            <h2 class="mb-4 text-lg font-semibold">📌 Tarefas Pendentes</h2>
-            <p class="text-4xl font-bold text-blue-600">{{ $pendingTasks ?? 0 }}</p>
-        </div>
+        <!-- Tarefas Pendentes -->
+        <a href="{{ route('tasks.index', ['status' => 'pendente']) }}" class="block">
+            <div class="p-6 transition bg-white border-l-8 border-blue-600 rounded-lg shadow-md hover:scale-105">
+                <h2 class="mb-4 text-lg font-semibold">📌 Tarefas Pendentes</h2>
+                <p class="text-4xl font-bold text-blue-600">{{ $pendingTasks ?? 0 }}</p>
+            </div>
+        </a>
 
-        <div class="p-6 transition bg-white border-l-8 border-yellow-500 rounded-lg shadow-md hover:scale-105">
-            <h2 class="mb-4 text-lg font-semibold">⚙️ Em Andamento</h2>
-            <p class="text-4xl font-bold text-yellow-500">{{ $inProgressTasks ?? 0 }}</p>
-        </div>
+        <!-- Tarefas em Andamento -->
+        <a href="{{ route('tasks.index', ['status' => 'em andamento']) }}" class="block">
+            <div class="p-6 transition bg-white border-l-8 border-yellow-500 rounded-lg shadow-md hover:scale-105">
+                <h2 class="mb-4 text-lg font-semibold">⚙️ Em Andamento</h2>
+                <p class="text-4xl font-bold text-yellow-500">{{ $inProgressTasks ?? 0 }}</p>
+            </div>
+        </a>
 
-        <div class="p-6 transition bg-white border-l-8 border-green-600 rounded-lg shadow-md hover:scale-105">
-            <h2 class="mb-4 text-lg font-semibold">✅ Concluídas</h2>
-            <p class="text-4xl font-bold text-green-600">{{ $completedTasks ?? 0 }}</p>
-        </div>
+        <!-- Tarefas Concluídas -->
+        <a href="{{ route('tasks.index', ['status' => 'concluída']) }}" class="block">
+            <div class="p-6 transition bg-white border-l-8 border-green-600 rounded-lg shadow-md hover:scale-105">
+                <h2 class="mb-4 text-lg font-semibold">✅ Concluídas</h2>
+                <p class="text-4xl font-bold text-green-600">{{ $completedTasks ?? 0 }}</p>
+            </div>
+        </a>
     </div>
 
     <!-- Atalhos Rápidos -->
