@@ -103,7 +103,6 @@
                     Enviar Anexo(s)
                 </button>
             </form>
-
             <!-- Lista de Anexos -->
             <div>
                 @forelse($task->attachments as $attachment)
@@ -127,34 +126,9 @@
         </div>
     </div>
 
-    <!-- Painel Colapsável de Comentários (opcional) -->
-    <div x-data="{ openComments: false }" class="mt-8">
-        <button @click="openComments = !openComments" class="w-full px-4 py-2 text-white transition bg-gray-700 rounded-lg hover:bg-gray-800">
-            <span x-text="openComments ? 'Ocultar Comentários' : 'Mostrar Comentários'"></span>
-        </button>
-
-        <div x-show="openComments" class="mt-4">
-            <!-- Formulário para Adicionar Comentário -->
-            <form method="POST" action="{{ route('comments.store', $task->id) }}" class="mb-4">
-                @csrf
-                <textarea name="comment" rows="3" class="w-full p-2 border rounded" placeholder="Adicione um comentário..." required></textarea>
-                <button type="submit" class="px-4 py-2 mt-2 text-white bg-blue-600 rounded hover:bg-blue-700">
-                    Enviar Comentário
-                </button>
-            </form>
-
-            <!-- Lista de Comentários -->
-            <div>
-                @forelse($task->comments as $comment)
-                    <div class="p-4 mb-2 border rounded">
-                        <p class="text-gray-700">{{ $comment->comment }}</p>
-                        <small class="text-gray-500">Por {{ $comment->user->name }} em {{ $comment->created_at->format('d/m/Y H:i') }}</small>
-                    </div>
-                @empty
-                    <p class="text-gray-600">Nenhum comentário adicionado ainda.</p>
-                @endforelse
-            </div>
-        </div>
+    <!-- Componente de Comentários Reutilizável -->
+    <div class="mt-8">
+        @include('components.comments', ['task' => $task, 'comments' => $task->comments])
     </div>
 </div>
 @endsection

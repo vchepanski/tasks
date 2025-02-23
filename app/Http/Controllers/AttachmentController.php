@@ -12,28 +12,29 @@ use Illuminate\Support\Facades\Storage;
 class AttachmentController extends Controller
 {
     public function store(Request $request, Task $task)
-    {
-        // Valida o arquivo (máximo de 2MB, ajuste se necessário)
-        $request->validate([
-            'attachment' => 'required|file|max:2048',
-        ]);
+{
 
-        // Armazena o arquivo na pasta "attachments" no disco "public"
-        $path = $request->file('attachment')->store('attachments', 'public');
+  // Valida os arquivos (cada arquivo máximo de 2MB)
+    $request->validate([
+        'attachments'   => 'required|array',
+        'attachments.*' => 'file|max:2048',
+    ]);
 
-        // Cria o registro do anexo no banco
+    foreach ($request->file('attachments') as $file) {
+        $path = $file->store('attachments', 'public');
         Attachment::create([
-            'task_id' => $task->id,
-            'user_id' => FacadesAuth::id(),
-            'file_path' => $path,
+            'task_id'       => $task->id,
+            'user_id'       => FacadesAuth::id(),
+            'file_path'     => $path,
+            'original_name' => $file->getClientOriginalName(), // opcional: armazena o nome original
         ]);
-
-        return back()->with('success', 'Anexo enviado com sucesso!');
     }
+
+    return back()->with('success', 'Anexo(s) enviado(s) com sucesso!');
+}
 
     public function destroy(\App\Models\Attachment $attachment)
 {
-    // Verifica se o arquivo existe e remove do storage
     if (\Illuminate\Support\Facades\Storage::disk('public')->exists($attachment->file_path)) {
         \Illuminate\Support\Facades\Storage::disk('public')->delete($attachment->file_path);
     }

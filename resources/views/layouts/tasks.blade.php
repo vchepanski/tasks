@@ -6,6 +6,7 @@
     <title>@yield('title', 'Gerenciador de Tarefas')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @vite(['resources/js/messages.js'])
+    <meta name="user-id" content="{{ auth()->check() ? auth()->id() : '' }}">
 </head>
 <body class="text-gray-900 bg-gray-100">
 
